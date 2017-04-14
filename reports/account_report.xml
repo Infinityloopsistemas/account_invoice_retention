@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+
+        <report 
+            id="account_invoice_retention"
+            model="account.invoice"
+            string="Invoices"
+            report_type="qweb-pdf"
+            name="account_invoice_retention.report_invoice_retention"
+            file="account_invoice_retention.report_invoice_retention"
+            attachment_use="True"
+            attachment="(object.state in ('open','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')"
+        />
+
+
+    </data>
+</openerp>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+<template id="report_invoice_document_ret">
+    <t t-call="report.external_layout">
+        <div class="page">
+            <div class="row">
+                <div class="col-xs-5 col-xs-offset-7">
+                    <address t-field="o.partner_id"
+                        t-field-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}' />
+                    <span t-if="o.partner_id.vat">CIF: <span t-field="o.partner_id.vat"/></span>
+                </div>
+            </div>
+
+            <h2>
+                <span t-if="o.type == 'out_invoice' and (o.state == 'open' or o.state == 'paid')">Factura</span>
+                <span t-if="o.type == 'out_invoice' and o.state == 'proforma2'">PRO-FORMA</span>
+                <span t-if="o.type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>
+                <span t-if="o.type == 'out_refund'">Refund</span>
+                <span t-if="o.type == 'in_refund'">Supplier Refund</span>
+                <span t-if="o.type == 'in_invoice'">Supplier Invoice</span>
+                <span t-field="o.number"/>
+            </h2>
+
+            <div class="row mt32 mb32">
+                <div class="col-xs-2" t-if="o.name">
+                    <strong>Descripcion:</strong>
+                    <p t-field="o.name"/>
+                </div>
+                <div class="col-xs-2" t-if="o.date_invoice">
+                    <strong>Fecha Factura:</strong>
+                    <p t-field="o.date_invoice"/>
+                </div>
+                <div class="col-xs-2" t-if="o.origin">
+                    <strong>Origen:</strong>
+                    <p t-field="o.origin"/>
+                </div>
+                <div class="col-xs-2" t-if="o.partner_id.ref">
+                    <strong>Cod.Cliente:</strong>
+                    <p t-field="o.partner_id.ref"/>
+                </div>
+                <div class="col-xs-2" t-if="o.reference">
+                    <strong>Referencia:</strong>
+                    <p t-field="o.reference"/>
+                </div>
+            </div>
+
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Descripcion</th>
+                        <th>Cantidad</th>
+                        <th class="text-right">P/U</th>
+                        <th class="text-right" groups="sale.group_discount_per_so_line">Desc (%)</th>
+                        <th class="text-right">Imp.</th>
+                        <th class="text-right">Importe</th>
+                    </tr>
+                </thead>
+                <tbody class="invoice_tbody">
+                    <tr t-foreach="o.invoice_line" t-as="l">
+                        <td><span t-field="l.name"/></td>
+                        <td>
+                            <span t-field="l.quantity"/>
+                            <span t-field="l.uos_id"  groups="product.group_uom"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="l.price_unit"/>
+                        </td>
+                        <td class="text-right" groups="sale.group_discount_per_so_line"><span t-field="l.discount"/></td>
+                        <td class="text-right">
+                            <span t-esc="', '.join(map(lambda x: x.name, l.invoice_line_tax_id))"/>
+                        </td>
+                        <td class="text-right">
+                            <span t-field="l.price_subtotal" 
+                                t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="row">
+                <div class="col-xs-4 pull-right">
+                    <table class="table table-condensed">
+                        <tr class="border-black">
+                            <div t-if="o.retention_id.type=='B'">
+                                <td><strong>Total</strong></td>
+                            </div>
+                             <div t-if="o.retention_id.type=='A' or o.retention_id==False ">
+                                <td><strong>Base Imponible</strong></td>
+                            </div>
+                            <td class="text-right">
+                                <span t-field="o.amount_untaxed" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                            </td>
+                        </tr>
+                         <div t-if="o.retention_id">
+                             <tr class="border-black">
+
+                                <td><strong>Retenciones por garantia</strong></td>
+                                <td class="text-right">
+                                    <span t-field="o.amount_retention" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                </td>
+                            </tr>
+                             <tr class="border-black">
+                                 <div t-if="o.retention_id.type=='B'">
+                                    <td><strong>Base Imponible</strong></td>
+                                 </div>
+                                  <div t-if="o.retention_id.type=='A'">
+                                    <td><strong>Total con Retencion</strong></td>
+                                 </div>
+
+                                <td class="text-right">
+                                    <span t-field="o.amount_total_retention" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                </td>
+                            </tr>
+                         </div>
+                        <tr>
+                            <td>Impuesto</td>
+                            <td class="text-right">
+                                <span t-field="o.amount_tax" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                            </td>
+                        </tr>
+                        <tr class="border-black">
+                            <td><strong>Total</strong></td>
+                            <td class="text-right">
+                                 <span t-field="o.amount_total" t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row" t-if="o.tax_line">
+                <div class="col-xs-6">
+                    <table class="table table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Tax</th>
+                                <th class="text-right">Base</th>
+                                <th class="text-right">Importe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+
+                            <tr t-foreach="o.tax_line" t-as="t">
+                                <td><span t-field="t.name"/></td>
+                                <td class="text-right">
+                                    <span t-field="t.base"
+                                        t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-field="t.amount"
+                                        t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                </td>
+                            </tr>
+                            <div t-if="o.retention_id and o.retention_id.type=='B' ">
+
+                             <tr>
+                                <td><span t-field="o.retention_id.taxes_id.name"/></td>
+                                <td class="text-right">
+                                    <span t-field="o.amount_retention"
+                                        t-field-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                </td>
+                                <td class="text-right">
+                                    <span  t-esc="o.TaxRetention(o.id)" t-esc-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                </td>
+                            </tr>
+                            </div>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <p t-if="o.comment">
+                <strong>Comment:</strong>
+                <span t-field="o.comment"/>
+            </p>
+            <p t-if="o.payment_term.note">
+                <strong>Payment Term:</strong>
+                <span t-field="o.payment_term.note"/>
+            </p>
+            <p t-if="o.fiscal_position.note">
+                <strong>Fiscal Position Remark:</strong>
+                <span t-field="o.fiscal_position.note"/>
+            </p>
+        </div>
+    </t>
+</template>
+
+<template id="report_invoice_retention">
+    <t t-call="report.html_container">
+        <t t-foreach="doc_ids" t-as="doc_id">
+            <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'account_invoice_retention.report_invoice_document_ret')"/>
+        </t>
+    </t>
+</template>
+</data>
+</openerp>

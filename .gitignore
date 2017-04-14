@@ -94,9 +94,4 @@ ENV/
 
 .gitignore
 .idea/
-__init__.py
-__init__.pyc
-__openerp__.py
-models/
-reports/
-views/
+

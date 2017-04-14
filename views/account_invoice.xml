@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+             <!-- Account Invoice Retention Guarantee -->
+        <record id="view_invoice_retention_guarantee_form" model="ir.ui.view">
+            <field name="name">account.invoice.retention.form</field>
+            <field name="model">account.invoice.retention</field>
+            <field name="arch" type="xml">
+                <form string="Rentencion de Grantias">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="porcentaje"/>
+                            <field name="type"/>
+                        </group>
+                        <group>
+                            <field name="account_id"/>
+                            <field name="taxes_id" attrs="{'invisible':[('type','!=','B')]}"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+        <record id="view_invoice_retention_guarantee_tree" model="ir.ui.view">
+            <field name="name">account.invoice.retention.tree</field>
+            <field name="model">account.invoice.retention</field>
+            <field name="arch" type="xml">
+                <tree  string="Garantias de Retencion">
+                    <field name="name"/>
+                    <field name="porcentaje"/>
+                    <field name="type"/>
+                    <field name="account_id"/>
+                </tree>
+            </field>
+        </record>
+
+       <record id="action_retention_guarantee_list" model="ir.actions.act_window">
+            <field name="name">Retenciones por Garantia</field>
+            <field name="res_model">account.invoice.retention</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+
+        <menuitem id="menu_ret_guarantee" name="Retenciones" parent="account.menu_finance_configuration" sequence="40"/>
+        <menuitem action="action_retention_guarantee_list" id="menu_action_retention_list" parent="menu_ret_guarantee" sequence="12" groups="base.group_no_one"/>
+
+
+        <record model="ir.ui.view" id="account_invoice_form_retention_guarantee">
+            <field name="name">account.invoice.form.retention.guarantee</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <field name="account_id" position="after">
+                    <field name="retention_id" />
+                </field>
+                <field name="amount_untaxed" position="after" >
+                        <field name="amount_retention"   widget="monetary" options="{'currency_field': 'currency_id'}" attrs="{'invisible':[('retention_id','=',False)]}"/>
+                        <field name="amount_total_retention"  widget="monetary" options="{'currency_field': 'currency_id'}" attrs="{'invisible':[('retention_id','=',False)]}" />
+                </field>
+                 <field name="move_id" position="after">
+                    <field name="move_retention_id" />
+                </field>
+            </field>
+        </record>
+
+    </data>
+</openerp>
