@@ -172,6 +172,10 @@
                 </div>
             </div>
 
+             <p t-if="o.retention_id">
+                <strong>Retencion aplicada:</strong>
+                <span t-field="o.retention_id.name"/>
+            </p>
             <p t-if="o.comment">
                 <strong>Comment:</strong>
                 <span t-field="o.comment"/>
